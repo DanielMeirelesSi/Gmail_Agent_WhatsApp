@@ -4,6 +4,7 @@ const COMMANDS = {
   IMPORTANT_EMAILS: "IMPORTANT_EMAILS",
   JOBS: "JOBS",
   EMAILS_TODAY: "EMAILS_TODAY",
+  NEW_EMAILS: "NEW_EMAILS",
 };
 
 function normalizeText(text) {
@@ -29,6 +30,18 @@ function detectCommand(userText) {
     "como funciona",
     "opcoes",
     "opções",
+  ];
+
+  const newEmailTerms = [
+    "novos emails",
+    "novos e-mails",
+    "email novo",
+    "e-mail novo",
+    "tem algo novo",
+    "chegou algo novo",
+    "alguma novidade",
+    "novidades",
+    "ver novos",
   ];
 
   const jobTerms = [
@@ -101,6 +114,10 @@ function detectCommand(userText) {
     return COMMANDS.HELP;
   }
 
+  if (includesAny(text, newEmailTerms)) {
+    return COMMANDS.NEW_EMAILS;
+  }
+
   if (includesAny(text, jobTerms)) {
     return COMMANDS.JOBS;
   }
@@ -133,6 +150,10 @@ function getGmailQuery(command) {
     return "newer_than:3d";
   }
 
+  if (command === COMMANDS.NEW_EMAILS) {
+    return "newer_than:3d";
+  }
+
   return "newer_than:2d";
 }
 
@@ -146,6 +167,10 @@ function getMaxResults(command) {
   }
 
   if (command === COMMANDS.IMPORTANT_EMAILS) {
+    return 10;
+  }
+
+  if (command === COMMANDS.NEW_EMAILS) {
     return 10;
   }
 
@@ -165,6 +190,10 @@ function getSummaryMode(command) {
     return "today";
   }
 
+  if (command === COMMANDS.NEW_EMAILS) {
+    return "summary";
+  }
+
   return "summary";
 }
 
@@ -181,6 +210,10 @@ function getProcessingMessage(command) {
     return "Vou verificar os e-mails recebidos hoje e resumir o que importa.";
   }
 
+  if (command === COMMANDS.NEW_EMAILS) {
+    return "Vou verificar se chegaram e-mails novos desde a última conferência.";
+  }
+
   return "Vou revisar seus e-mails recentes e te passar um resumo objetivo.";
 }
 
@@ -192,6 +225,9 @@ Vejo seus e-mails recentes e separo o que merece atenção.
 
 ver vagas
 Procuro oportunidades, processos seletivos e mensagens de recrutadores.
+
+novos e-mails
+Mostro apenas e-mails que ainda não foram vistos nas últimas verificações.
 
 e-mails de hoje
 Resumo o que chegou hoje.

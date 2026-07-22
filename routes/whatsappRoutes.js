@@ -21,6 +21,7 @@ const {
   wasMessageProcessed,
   markMessageAsProcessed,
 } = require("../utils/messageCache");
+const { getNewEmails, markEmailsAsSeen } = require("../utils/emailState");
 
 const router = express.Router();
 
@@ -88,9 +89,34 @@ async function processIncomingMessage(message) {
       query: getGmailQuery(command),
     });
 
+    if (command === COMMANDS.NEW_EMAILS) {
+      const newEmails = getNewEmails(emails);
+
+      if (newEmails.length === 0) {
+        await sendWhatsAppText(
+          from,
+          "Daniel, não encontrei e-mails novos desde a última conferência."
+        );
+
+        return;
+      }
+
+      const summary = await summarizeEmails(newEmails, {
+        mode: getSummaryMode(command),
+      });
+
+      markEmailsAsSeen(newEmails);
+
+      await sendWhatsAppText(from, summary);
+
+      return;
+    }
+
     const summary = await summarizeEmails(emails, {
       mode: getSummaryMode(command),
     });
+
+    markEmailsAsSeen(emails);
 
     await sendWhatsAppText(from, summary);
 
