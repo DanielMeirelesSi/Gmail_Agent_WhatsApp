@@ -9,11 +9,13 @@ const {
   summarizeEmails,
 } = require("../services/openaiService");
 const {
+  COMMANDS,
   detectCommand,
   getGmailQuery,
   getMaxResults,
   getSummaryMode,
   getProcessingMessage,
+  getHelpMessage,
 } = require("../utils/commandUtils");
 const {
   wasMessageProcessed,
@@ -61,6 +63,11 @@ async function processIncomingMessage(message) {
   }
 
   const command = detectCommand(userText);
+
+  if (command === COMMANDS.HELP) {
+    await sendWhatsAppText(from, getHelpMessage());
+    return;
+  }
 
   if (command) {
     if (!isGmailConnected()) {

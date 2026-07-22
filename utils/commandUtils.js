@@ -1,4 +1,5 @@
 const COMMANDS = {
+  HELP: "HELP",
   EMAIL_SUMMARY: "EMAIL_SUMMARY",
   IMPORTANT_EMAILS: "IMPORTANT_EMAILS",
   JOBS: "JOBS",
@@ -18,6 +19,17 @@ function includesAny(text, terms) {
 
 function detectCommand(userText) {
   const text = normalizeText(userText);
+
+  const helpTerms = [
+    "ajuda",
+    "comandos",
+    "menu",
+    "o que voce faz",
+    "o que você faz",
+    "como funciona",
+    "opcoes",
+    "opções",
+  ];
 
   const jobTerms = [
     "vaga",
@@ -84,6 +96,10 @@ function detectCommand(userText) {
     "verifique meus e-mails",
     "caixa de entrada",
   ];
+
+  if (includesAny(text, helpTerms)) {
+    return COMMANDS.HELP;
+  }
 
   if (includesAny(text, jobTerms)) {
     return COMMANDS.JOBS;
@@ -168,6 +184,24 @@ function getProcessingMessage(command) {
   return "Vou revisar seus e-mails recentes e te passar um resumo objetivo.";
 }
 
+function getHelpMessage() {
+  return `Daniel, posso te ajudar com estes comandos:
+
+tem algo importante?
+Vejo seus e-mails recentes e separo o que merece atenção.
+
+ver vagas
+Procuro oportunidades, processos seletivos e mensagens de recrutadores.
+
+e-mails de hoje
+Resumo o que chegou hoje.
+
+resuma meus e-mails
+Faço um resumo geral dos e-mails recentes.
+
+Por enquanto, eu apenas leio e resumo. Ainda não respondo, arquivo ou apago e-mails.`;
+}
+
 module.exports = {
   COMMANDS,
   detectCommand,
@@ -175,4 +209,5 @@ module.exports = {
   getMaxResults,
   getSummaryMode,
   getProcessingMessage,
+  getHelpMessage,
 };
