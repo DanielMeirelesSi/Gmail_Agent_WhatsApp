@@ -1,6 +1,7 @@
 const fs = require("fs");
+const { getStoragePath } = require("./storagePaths");
 
-const EMAIL_STATE_PATH = "email-state.json";
+const EMAIL_STATE_PATH = getStoragePath("email-state.json");
 
 function getDefaultState() {
   return {

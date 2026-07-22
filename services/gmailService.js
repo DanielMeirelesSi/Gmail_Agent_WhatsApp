@@ -1,8 +1,9 @@
 const { google } = require("googleapis");
 const fs = require("fs");
 const { getEmailHeader } = require("../utils/emailUtils");
+const { getStoragePath } = require("../utils/storagePaths");
 
-const GMAIL_TOKEN_PATH = "gmail-token.json";
+const GMAIL_TOKEN_PATH = getStoragePath("gmail-token.json");
 
 const GMAIL_SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"];
 
