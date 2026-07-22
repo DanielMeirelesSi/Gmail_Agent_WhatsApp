@@ -24,6 +24,7 @@ function detectCommand(userText) {
     "vagas",
     "emprego",
     "processo seletivo",
+    "processos seletivos",
     "entrevista",
     "recrutador",
     "recrutadora",
@@ -31,7 +32,11 @@ function detectCommand(userText) {
     "gupy",
     "indeed",
     "candidatura",
+    "candidaturas",
     "oportunidade",
+    "oportunidades",
+    "carreira",
+    "trabalho",
   ];
 
   const importantTerms = [
@@ -41,47 +46,58 @@ function detectCommand(userText) {
     "tem algo importante",
     "algo importante",
     "preciso responder",
+    "tenho que responder",
     "exige resposta",
+    "exigem resposta",
     "atencao",
+    "pendente",
+    "pendencias",
+    "o que preciso ver",
+    "o que merece atencao",
   ];
 
   const todayTerms = [
+    "hoje",
     "email de hoje",
     "emails de hoje",
     "e-mail de hoje",
     "e-mails de hoje",
     "gmail de hoje",
-    "hoje",
+    "recebi hoje",
+    "chegou hoje",
   ];
 
-  const emailTerms = [
+  const summaryTerms = [
     "email",
     "emails",
     "e-mail",
     "e-mails",
     "gmail",
-    "resuma meus emails",
-    "resuma meus e-mails",
-    "resumir meus emails",
-    "resumir meus e-mails",
-    "verificar meus emails",
+    "resuma",
+    "resumir",
+    "resumo",
+    "ultimos emails",
+    "ultimos e-mails",
+    "verificar emails",
+    "verifique emails",
     "verifique meus emails",
     "verifique meus e-mails",
+    "caixa de entrada",
   ];
 
   if (includesAny(text, jobTerms)) {
     return COMMANDS.JOBS;
   }
 
+  if (includesAny(text, todayTerms) && includesAny(text, summaryTerms)) {
+    return COMMANDS.EMAILS_TODAY;
+  }
+
   if (includesAny(text, importantTerms)) {
     return COMMANDS.IMPORTANT_EMAILS;
   }
 
-  if (includesAny(text, todayTerms) && includesAny(text, emailTerms)) {
-    return COMMANDS.EMAILS_TODAY;
-  }
-
-  if (includesAny(text, emailTerms)) {
+  if (includesAny(text, summaryTerms)) {
     return COMMANDS.EMAIL_SUMMARY;
   }
 
@@ -90,7 +106,7 @@ function detectCommand(userText) {
 
 function getGmailQuery(command) {
   if (command === COMMANDS.JOBS) {
-    return 'newer_than:7d (vaga OR emprego OR entrevista OR recrutador OR candidatura OR oportunidade OR LinkedIn OR Gupy OR Indeed)';
+    return "newer_than:14d";
   }
 
   if (command === COMMANDS.EMAILS_TODAY) {
@@ -98,7 +114,7 @@ function getGmailQuery(command) {
   }
 
   if (command === COMMANDS.IMPORTANT_EMAILS) {
-    return "newer_than:2d";
+    return "newer_than:3d";
   }
 
   return "newer_than:2d";
@@ -106,6 +122,14 @@ function getGmailQuery(command) {
 
 function getMaxResults(command) {
   if (command === COMMANDS.JOBS) {
+    return 10;
+  }
+
+  if (command === COMMANDS.EMAILS_TODAY) {
+    return 8;
+  }
+
+  if (command === COMMANDS.IMPORTANT_EMAILS) {
     return 10;
   }
 
@@ -130,18 +154,18 @@ function getSummaryMode(command) {
 
 function getProcessingMessage(command) {
   if (command === COMMANDS.IMPORTANT_EMAILS) {
-    return "Vou verificar se tem algo importante nos seus e-mails recentes. Um momento...";
+    return "Vou conferir seus e-mails recentes e separar o que realmente merece atenção.";
   }
 
   if (command === COMMANDS.JOBS) {
-    return "Vou procurar e-mails relacionados a vagas e processos seletivos. Um momento...";
+    return "Vou procurar oportunidades, vagas e processos seletivos nos seus e-mails.";
   }
 
   if (command === COMMANDS.EMAILS_TODAY) {
-    return "Vou verificar seus e-mails de hoje. Um momento...";
+    return "Vou verificar os e-mails recebidos hoje e resumir o que importa.";
   }
 
-  return "Vou verificar seus e-mails recentes. Um momento...";
+  return "Vou revisar seus e-mails recentes e te passar um resumo objetivo.";
 }
 
 module.exports = {

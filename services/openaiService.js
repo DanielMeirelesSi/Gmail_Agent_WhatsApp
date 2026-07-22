@@ -31,7 +31,7 @@ Tom da resposta:
 - Fale como uma secretária pessoal cuidadosa e objetiva.
 - Seja natural, educado e direto.
 - Use português do Brasil.
-- Não use muitos emojis. Evite emojis, exceto se for realmente necessário.
+- Não use emojis.
 - Não use linguagem exageradamente informal.
 - Não use texto longo.
 - Não invente informações.
@@ -60,16 +60,17 @@ Estilo obrigatório:
 - Escreva como uma pessoa cuidadosa informando Daniel.
 - Seja claro, objetivo e útil.
 - Use português do Brasil.
-- Não use muitos emojis. O ideal é não usar nenhum.
+- Não use emojis.
 - Não use tom alarmista.
 - Não use markdown exagerado.
-- Não exponha e-mails completos, nomes de contas sensíveis ou dados privados além do necessário.
+- Não exponha e-mails completos.
 - Se aparecer e-mail mascarado, mantenha mascarado.
 - Não invente informações.
 - Use apenas os dados fornecidos.
-- A resposta deve caber bem no WhatsApp, sem ficar grande.
-- Máximo de 3 blocos curtos.
-- Cada bloco deve ter no máximo 2 frases.
+- A resposta deve ser curta e caber bem no WhatsApp.
+- Não crie título sem conteúdo.
+- Não termine a resposta com um tópico vazio.
+- Seja específico com o que encontrou.
 `;
 
   if (mode === "important") {
@@ -88,22 +89,17 @@ Priorize:
 - clientes ou freelas
 - prazos e compromissos
 
-Ignore ou reduza:
-- newsletters
-- notificações genéricas
-- alertas automáticos sem ação clara
-
-Formato desejado:
+Formato obrigatório:
 Daniel, encontrei alguns pontos que merecem sua atenção.
 
-1. Ponto principal
-Explique em uma frase curta.
+Principal:
+Explique o item mais importante em até 2 frases.
 
-2. Oportunidades ou mensagens
-Explique em uma frase curta.
+Também vale conferir:
+Explique outras pendências ou oportunidades em até 2 frases.
 
-3. Ação sugerida
-Diga o que ele deveria abrir primeiro.
+Sugestão:
+Diga o que Daniel deve abrir primeiro.
     `;
   }
 
@@ -118,20 +114,25 @@ Priorize:
 - convite de recrutador
 - candidatura
 - entrevista
-- vaga compatível
+- vaga compatível com tecnologia, desenvolvimento, suporte técnico ou estágio
 - LinkedIn, Gupy, Indeed, empresas e recrutadores
 
-Formato desejado:
-Daniel, encontrei estas oportunidades nos seus e-mails.
+Ignore:
+- newsletters genéricas
+- propaganda
+- alerta repetitivo sem vaga clara
 
-1. Mais relevante
-Resumo curto.
+Formato obrigatório:
+Daniel, encontrei oportunidades nos seus e-mails.
 
-2. Outras oportunidades
-Resumo curto.
+Mais relevante:
+Informe a melhor oportunidade encontrada em até 2 frases.
 
-3. Próximo passo
-Diga o que vale conferir primeiro.
+Outras opções:
+Liste outras vagas, convites ou alertas úteis em até 2 frases.
+
+Sugestão:
+Diga o que Daniel deve conferir primeiro.
     `;
   }
 
@@ -140,7 +141,7 @@ Diga o que vale conferir primeiro.
 ${baseRules}
 
 Objetivo:
-Resumir os e-mails de hoje.
+Resumir os e-mails recebidos hoje.
 
 Priorize:
 - mensagens importantes
@@ -149,17 +150,17 @@ Priorize:
 - segurança
 - compromissos
 
-Formato desejado:
+Formato obrigatório:
 Daniel, seus e-mails de hoje têm estes pontos principais.
 
-1. Importante
-Resumo curto.
+Importante:
+Resumo curto do que merece atenção.
 
-2. Pode esperar
-Resumo curto.
+Pode esperar:
+Resumo curto do que parece menos urgente.
 
-3. Ação sugerida
-Resumo curto.
+Sugestão:
+Diga o que Daniel deve abrir primeiro.
     `;
   }
 
@@ -169,18 +170,81 @@ ${baseRules}
 Objetivo:
 Fazer um resumo geral dos e-mails recentes.
 
-Formato desejado:
-Daniel, aqui está um resumo dos seus e-mails recentes.
+Formato obrigatório:
+Daniel, revisei seus e-mails recentes.
 
-1. Mais importante
-Resumo curto.
+Mais importante:
+Resumo curto do principal.
 
-2. O que pode exigir ação
-Resumo curto.
+Pode exigir ação:
+Resumo curto do que Daniel talvez precise responder ou abrir.
 
-3. Baixa prioridade
-Resumo curto.
+Baixa prioridade:
+Resumo curto do que parece apenas notificação.
   `;
+}
+
+function buildFallbackEmailSummary(emails, mode) {
+  const firstEmails = emails.slice(0, 3);
+
+  if (mode === "jobs") {
+    const items = firstEmails
+      .map((email) => `- ${email.subject || "Sem assunto"}`)
+      .join("\n");
+
+    return `Daniel, encontrei alguns e-mails recentes que podem ter relação com oportunidades.
+
+${items}
+
+Sugestão:
+Eu abriria primeiro os que mencionam vaga, candidatura, entrevista ou LinkedIn.`;
+  }
+
+  const items = firstEmails
+    .map((email) => `- ${email.subject || "Sem assunto"}`)
+    .join("\n");
+
+  return `Daniel, consegui encontrar e-mails recentes, mas não consegui gerar um resumo completo agora.
+
+Principais assuntos encontrados:
+${items}`;
+}
+
+function ensureCompleteSummary(summary, mode) {
+  if (!summary) {
+    return "";
+  }
+
+  const cleanedSummary = summary.trim();
+
+  const incompleteEndings = [
+    "3. Próximo passo",
+    "3. Sugestão",
+    "Próximo passo:",
+    "Sugestão:",
+    "Sugestão",
+  ];
+
+  const isIncomplete = incompleteEndings.some((ending) =>
+    cleanedSummary.endsWith(ending)
+  );
+
+  if (!isIncomplete) {
+    return cleanedSummary;
+  }
+
+  if (mode === "jobs") {
+    return `${cleanedSummary}
+Abra primeiro as vagas com prazo ou indicação de candidatura hoje, depois confira os convites de recrutadores.`;
+  }
+
+  if (mode === "important") {
+    return `${cleanedSummary}
+Abra primeiro o que envolve segurança, resposta pendente ou oportunidade profissional.`;
+  }
+
+  return `${cleanedSummary}
+Abra primeiro os e-mails que parecem exigir resposta ou alguma ação sua.`;
 }
 
 async function summarizeEmails(emails, options = {}) {
@@ -206,14 +270,18 @@ E-mails encontrados:
 ${formattedEmails}
 
 Faça uma resposta curta, humanizada e útil para WhatsApp.
-Não ultrapasse 900 caracteres.
-Não use emojis desnecessários.
+Não ultrapasse 850 caracteres.
+Não use emojis.
 Não exponha e-mails completos.
+Evite repetir o mesmo assunto em blocos diferentes.
+Sempre termine a resposta com uma sugestão prática.
 `,
-    max_output_tokens: 260,
+    max_output_tokens: 320,
   });
 
-  return response.output_text || "Não consegui resumir os e-mails agora.";
+  const summary = response.output_text || buildFallbackEmailSummary(emails, mode);
+
+  return ensureCompleteSummary(summary, mode);
 }
 
 async function testOpenAI() {
